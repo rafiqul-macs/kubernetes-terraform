@@ -1,10 +1,10 @@
 output "kubernetes_cluster_name" {
-  value       = google_container_cluster.primary.name
+  value       = data.google_container_cluster.primary.name
   description = "GKE Cluster Name"
 }
 
 output "kubernetes_cluster_endpoint" {
-  value       = "https://${google_container_cluster.primary.endpoint}"
+  value       = "https://${data.google_container_cluster.primary.endpoint}"
   description = "GKE Cluster Endpoint"
 }
 
