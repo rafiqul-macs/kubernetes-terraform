@@ -12,3 +12,4 @@ output "artifact_registry_repository" {
   value       = google_artifact_registry_repository.kubernetes_assignment.name
   description = "Artifact Registry Repository"
 }
+

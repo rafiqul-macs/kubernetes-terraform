@@ -16,3 +16,4 @@ data "google_container_cluster" "primary" {
   name     = "kubernetes-assignment-cluster"
   location = var.zone
 }
+
