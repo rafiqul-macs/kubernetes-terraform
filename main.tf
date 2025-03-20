@@ -4,14 +4,19 @@ provider "google" {
   zone    = var.zone
 }
 
-# Create Artifact Registry Repository
+# Create Artifact Registry Repository with lifecycle block
 resource "google_artifact_registry_repository" "kubernetes_assignment" {
   location      = var.region
   repository_id = "kubernetes-assignment"
   format        = "DOCKER"
+  
+  # This prevents Terraform from trying to recreate/modify the existing repository
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
-# Create GKE Cluster
+# Create GKE Cluster with lifecycle block
 resource "google_container_cluster" "primary" {
   name     = "kubernetes-assignment-cluster"
   location = var.zone
@@ -21,37 +26,33 @@ resource "google_container_cluster" "primary" {
   # node pool and immediately delete it.
   remove_default_node_pool = true
   initial_node_count       = 1
-
-  # Networking configurations
-  networking_mode = "VPC_NATIVE"
   
-  # This is the latest stable release of GKE
-  release_channel {
-    channel = "REGULAR"
+  # This prevents Terraform from trying to recreate/modify the existing cluster
+  lifecycle {
+    ignore_changes = all
   }
 }
 
-# Create separately managed node pool
-resource "google_container_node_pool" "primary_nodes" {
-  name       = "primary-node-pool"
+# Create node pool with lifecycle block
+resource "google_container_node_pool" "small_pool" {
+  name       = "small-pool"
   location   = var.zone
   cluster    = google_container_cluster.primary.name
   node_count = 1
 
   node_config {
-    # As specified in the assignment
-    machine_type = "e2-micro"
-    
-    # Specific OS image
-    image_type = "cos_containerd"
-    
-    # Minimum boot disk size
+    machine_type = "e2-small"
+    image_type   = "cos_containerd"
     disk_size_gb = 10
     disk_type    = "pd-standard"
     
-    # Specific scopes for the nodes
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
     ]
+  }
+  
+  # This prevents Terraform from trying to recreate/modify the existing node pool
+  lifecycle {
+    ignore_changes = all
   }
 }
